@@ -93,8 +93,7 @@ FROM staff;
 ```sql
 SELECT first_name AS fn
 FROM staff AS s1
-  JOIN students AS s2
-    ON s2.mentor_id = s1.staff_num;
+JOIN students AS s2 ON s2.mentor_id = s1.staff_num;
 ```
 ```sql
 SELECT SUM(s.monitor_tally) AS monitor_total
@@ -106,6 +105,32 @@ FROM staff AS s;
 * The name must contain a verb.
 * Do not prefix with `sp_` or any other such descriptive prefix or Hungarian
   notation.
+* Prefix arguments/variables with an underscore.
+* Align argument types with longest argument name + 1 space.
+* All IN parameters should be listed before OUT parameters.
+* Arguments/variables meant to be immutable are screaming snake caps.
+* Arguments/variables meant to be mutable are lowercase snake caps.
+* Default to immutable naming conventions.
+
+```sql
+CREATE PROCEDURE `test`(
+  IN
+  _LKP_ID            INT,  -- not supposed to change this, even though you can!
+  _lkp_id_id2        INT,  -- you can change this
+  OUT _something_id  INT,
+  OUT _something_id2 INT,
+  OUT _something_id3 INT
+)
+
+BEGIN
+
+DECLARE _SOMETHING_ID VARCHAR(255) DEFAULT '123'; -- allowed
+SET _SOMETHING_ID = '123'; -- not allowed
+
+DECLARE _some_other_name VARCHAR(255); 
+SET _some_other_name = 'Frank Rizzo'; -- allowed
+```
+
 
 ### Uniform prefixes
 
@@ -217,8 +242,8 @@ Always include newlines/vertical space:
 * to separate code into related sections, which helps to ease the readability of
   large chunks of code.
 
-Keeping all the dependent keywords (e.g. `ON` depends on `JOIN`, `AND` depends on `WHERE`,
-`SET` depends on `UPDATE` right aligned with the top level keywords helps make it clear
+Keeping the top most dependent keywords (e.g. `ON` depends on `JOIN`, `AND` depends on `WHERE`,
+`SET` depends on `UPDATE`) left aligned with the subsequent dependent keywords indented 2 spaces helps make it clear
 all the lines are part of the same clause.
 
 ```sql
@@ -229,7 +254,7 @@ VALUES ('Charcoal Lane', '1990-01-01 01:01:01.00000', '1990-01-01 01:01:01.00000
 
 ```sql
 UPDATE albums
-   SET release_date = '1990-01-01 01:01:01.00000'
+SET release_date = '1990-01-01 01:01:01.00000'
 WHERE title = 'The New Danger';
 ```
 
@@ -246,27 +271,34 @@ WHERE a.title = 'Charcoal Lane'
 
 #### JOINs
 
-Joins should be indented 2 spaces right from the `FROM` keyword
+Joins should be left defined relative to the `FROM` keyword
 
 Single line `JOIN`s are fine for simple situations
 
 ```sql
 SELECT r.last_name
 FROM riders AS r
-  INNER JOIN bikes AS b ON r.bike_vin_num = b.vin_num
-  INNER JOIN crew AS c ON r.crew_chief_last_name = c.last_name
+INNER JOIN bikes AS b ON r.bike_vin_num = b.vin_num
+INNER JOIN crew AS c ON r.crew_chief_last_name = c.last_name;
 ```
 
 Multi line JOINs should be indented as per the dependent keywords rule:
 
 ```sql
-SELECT r.last_name
+SELECT 
+  r.last_name,
+  r.first_name,
+  b.model_num,
+  b.make_year,
+  CONCAT(c.first_name, ' ', c.last_name) AS  `Crew Chief`
 FROM riders AS r
-  INNER JOIN bikes AS b
-          ON r.bike_vin_num = b.vin_num
-         AND r.bike_lane = r.lane
-  INNER JOIN crew c ON r.crew_chief_last_name = c.last_name
-WHERE id = 5
+INNER JOIN bikes AS b
+  ON r.bike_vin_num = b.vin_num
+  AND r.bike_lane = r.lane
+INNER JOIN crew c ON r.crew_chief_last_name = c.last_name
+WHERE b.make_year > 2010
+  AND b.vin_num LIKE "%NRG%"
+  ORDER BY b.make_year DESC;
 ```
 
 #### Boolean Expressions
@@ -307,7 +339,7 @@ Indent them until the closing parentheses.
 WITH my_tmp_table AS (
   SELECT r.last_name
   FROM riders AS r
-    INNER JOIN bikes AS b ON r.bike_vin_num = b.vin_num
+  INNER JOIN bikes AS b ON r.bike_vin_num = b.vin_num
   WHERE id = 10
 ),
 
@@ -318,7 +350,7 @@ my_other_tmp_table AS (
 
 SELECT *
 FROM my_tmp_table
-  JOIN my_other_tmp_table ON my_other_tmp_table.last_name = my_tmp_table.last_name
+JOIN my_other_tmp_table ON my_other_tmp_table.last_name =    my_tmp_table.last_name
 ```
 
 #### Sub-queries
@@ -346,7 +378,7 @@ WHERE r.last_name IN
     FROM champions AS c
     WHERE YEAR(championship_date) > '2008'
       AND c.confirmed = 'Y'
-  )
+  );
 ```
 
 #### Case statements (PostreSQL)
@@ -380,7 +412,7 @@ SELECT
     END AS city,
   street_address,
   phone_number
-FROM office_locations
+FROM office_locations;
 ```
 
 #### Case statements (MySql)
@@ -392,7 +424,7 @@ SELECT
       THEN 'Brighton'
     WHEN 'EH1'
       THEN 'Edinburgh'
-    END AS city,
+  END AS city,
   street_address,
   phone_number
 FROM office_locations
@@ -416,11 +448,11 @@ SELECT
       THEN 'Brighton'
     WHEN 'EH1'
       THEN 'Edinburgh'
-    END AS city
+  END AS city
 FROM office_locations
 WHERE country = 'United Kingdom'
   AND opening_time BETWEEN 8 AND 9
-  AND postcode IN ('EH1', 'BN1', 'NN1', 'KW1')
+  AND postcode IN ('EH1', 'BN1', 'NN1', 'KW1');
 ```
 
 ## Create syntax
