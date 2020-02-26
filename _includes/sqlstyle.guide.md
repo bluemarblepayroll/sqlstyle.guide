@@ -350,7 +350,7 @@ my_other_tmp_table AS (
 
 SELECT *
 FROM my_tmp_table
-JOIN my_other_tmp_table ON my_other_tmp_table.last_name =    my_tmp_table.last_name
+JOIN my_other_tmp_table ON my_other_tmp_table.last_name = my_tmp_table.last_name
 ```
 
 #### Sub-queries
