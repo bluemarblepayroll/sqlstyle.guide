@@ -298,7 +298,7 @@ INNER JOIN bikes AS b
 INNER JOIN crew c ON r.crew_chief_last_name = c.last_name
 WHERE b.make_year > 2010
   AND b.vin_num LIKE "%NRG%"
-  ORDER BY b.make_year DESC;
+ORDER BY b.make_year DESC;
 ```
 
 #### Boolean Expressions
@@ -390,9 +390,9 @@ SELECT CASE WHEN x > y THEN 1 ELSE 0 END
 FROM table
 ```
 
-Or WHEN/END should have 2 space left justification, and `WHEN`/`THEN` should be indented the same as the `ELSE`/`value`.
+Or WHEN should have 2 space left justification, and `WHEN`/`THEN` should be indented the same as the `ELSE`/`value`.
 Multiple `AND` or `OR` clauses can be inlined if < 80 characters, or should be right aligned with the whitespace river
-after `WHEN` if they are longer
+after `WHEN` if they are longer. `END` should be inline with the initial `CASE` keyword.
 
 ```sql
 SELECT
@@ -409,7 +409,7 @@ SELECT
       THEN 'something else'
     ELSE
       'x and y not related'
-    END AS city,
+  END AS city,
   street_address,
   phone_number
 FROM office_locations;
