@@ -271,7 +271,7 @@ WHERE a.title = 'Charcoal Lane'
 
 #### JOINs
 
-Joins should be left defined relative to the `FROM` keyword
+Joins should be left defined and in alignment with the `FROM` keyword
 
 Single line `JOIN`s are fine for simple situations
 
