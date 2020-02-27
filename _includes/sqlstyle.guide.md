@@ -402,7 +402,7 @@ SELECT
     WHEN x > y AND x > z
       THEN 'x more than y and more than z'
     WHEN some_very_long_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
-     AND some_event_very_much_longer_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
+      AND some_event_very_much_longer_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
       THEN 'something happened later'
     WHEN some_very_long_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
       OR some_event_very_much_longer_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
