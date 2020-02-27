@@ -254,7 +254,7 @@ VALUES ('Charcoal Lane', '1990-01-01 01:01:01.00000', '1990-01-01 01:01:01.00000
 
 ```sql
 UPDATE albums
-SET release_date = '1990-01-01 01:01:01.00000'
+  SET release_date = '1990-01-01 01:01:01.00000'
 WHERE title = 'The New Danger';
 ```
 
