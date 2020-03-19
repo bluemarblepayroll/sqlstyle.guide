@@ -403,7 +403,7 @@ WHERE r.last_name IN
 
 #### Case statements (PostreSQL)
 
-`CASE` and `END` can either be inline if they are less than 80 characters:
+`CASE` and `END` can either be inline if they are up to 100 characters:
 
 ```sql
 SELECT CASE WHEN x > y THEN 1 ELSE 0 END
@@ -473,6 +473,19 @@ FROM office_locations
 WHERE country = 'United Kingdom'
   AND opening_time BETWEEN 8 AND 9
   AND postcode IN ('EH1', 'BN1', 'NN1', 'KW1');
+```
+
+* Use `TRUE` and `FALSE` instead of `0` and `1` as that it is immediately
+  obvious that these values are booleans and not magic numbers. This is also
+  more semantic. It appears as though SQL99 introduces this "IS FALSE" or "IS
+  TRUE" syntax. Since this style guide already suggests following the
+  standards where possible, we should here as well. Note that TRUE and FALSE 
+  are reserved words.
+
+```sql
+SELECT count(*)
+FROM office_locations
+WHERE is_shared IS FALSE;
 ```
 
 ## Create syntax
