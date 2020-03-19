@@ -478,9 +478,7 @@ WHERE country = 'United Kingdom'
 * Use `TRUE` and `FALSE` instead of `0` and `1` as that it is immediately
   obvious that these values are booleans and not magic numbers. This is also
   more semantic. It appears as though SQL99 introduces this "IS FALSE" or "IS
-  TRUE" syntax. Since this style guide already suggests following the
-  standards where possible, we should here as well. Note that TRUE and FALSE 
-  are reserved words.
+  TRUE" syntax. Note that TRUE and FALSE are reserved words.
 
 ```sql
 SELECT count(*)
