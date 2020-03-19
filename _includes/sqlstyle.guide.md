@@ -105,18 +105,21 @@ FROM staff AS s;
 * The name must contain a verb.
 * Do not prefix with `sp_` or any other such descriptive prefix or Hungarian
   notation.
-* Prefix arguments/variables with an underscore.
-* Align argument types with longest argument name + 1 space.
+* Prefix arguments/variables with an underscore. This is done to visually
+  differentiate variables from other identifiers such as column and table
+  names.
+* Align argument types with longest argument name + 1 space in order to 
+  create a separate visual column for the type declarations.
 * All IN parameters should be listed before OUT parameters.
-* Arguments/variables meant to be immutable are screaming snake caps.
-* Arguments/variables meant to be mutable are lowercase snake caps.
+* Arguments/variables meant to be immutable should be in screaming snake case.
+* Arguments/variables meant to be mutable should be in lowercase snake case.
 * Default to immutable naming conventions.
 
 ```sql
 CREATE PROCEDURE `test`(
   IN
   _LKP_ID            INT,  -- not supposed to change this, even though you can!
-  _lkp_id_id2        INT,  -- you can change this
+  _lkp_id_id2        INT,  -- you can change this  but changing input values is discouraged
   OUT _something_id  INT,
   OUT _something_id2 INT,
   OUT _something_id3 INT
@@ -124,11 +127,15 @@ CREATE PROCEDURE `test`(
 
 BEGIN
 
-DECLARE _SOMETHING_ID VARCHAR(255) DEFAULT '123'; -- allowed
-SET _SOMETHING_ID = '123'; -- not allowed
+DECLARE _CNST_HIDDEN_COMPONENT VARCHAR(255) DEFAULT 'Hidden Component'; -- allowed
+SET _CNST_HIDDEN_COMPONENT = 'Hidden Component'; -- not allowed
 
-DECLARE _some_other_name VARCHAR(255); 
-SET _some_other_name = 'Frank Rizzo'; -- allowed
+DECLARE _code_name VARCHAR(255); 
+
+SELECT `name`
+INTO _code_name -- allowed
+FROM codes
+WHERE id = _LKP_ID;
 ```
 
 
@@ -239,12 +246,21 @@ Always include newlines/vertical space:
 * before `AND` or `OR`
 * after semicolons to separate queries for easier reading
 * after each keyword definition
-* to separate code into related sections, which helps to ease the readability of
-  large chunks of code.
+* to separate code into related sections, which helps to ease the readability
+  of large chunks of code.
 
-Keeping the top most dependent keywords (e.g. `ON` depends on `JOIN`, `AND` depends on `WHERE`,
-`SET` depends on `UPDATE`) left aligned with the subsequent dependent keywords indented 2 spaces helps make it clear
-all the lines are part of the same clause.
+Additionally, for the following pairs of dependent key words - `ON` depends
+on `JOIN`/`LEFT JOIN`/`RIGHT JOIN`, `AND`/`OR` depends on `WHERE`, `SET`
+depends on `UPDATE`, `VALUES` depends on `INSERT INTO`:
+* `JOIN`/`LEFT JOIN`/`RIGHT JOIN` are left defined relative to `FROM` with
+  `ON` being on the same line when there is a single join condition or `ON`
+  being on the next line indented 2 spaces, with the additional `AND`/`OR`
+  conditions each on a new line indented 2 spaces, left aligned with `ON`.
+* `WHERE` is left defined relative to `SELECT` with subsequent `AND`/`OR`
+  each on their own line indented 2 spaces.
+* `UPDATE` is left defined with `SET` on a newline indented 2 spaces.
+* `INSERT INTO` is left defined with `VALUES` being left defined too.
+
 
 ```sql
 INSERT INTO albums (title, release_date, recording_date)
@@ -260,20 +276,24 @@ WHERE title = 'The New Danger';
 
 ```sql
 SELECT
-  a.title,
-  a.release_date,
-  a.recording_date,
-  a.production_date
-FROM albums AS a
+  artists.name,
+  albums.title,
+  albums.release_date,
+  albums.recording_date,
+  albums.production_date
+FROM albums AS albums
+LEFT JOIN artists AS artists
+  ON albums.artist_id = artists.id
+  AND artists.group_count > 2
 WHERE a.title = 'Charcoal Lane'
-   OR a.title = 'The New Danger';
+  OR a.title = 'The New Danger';
 ```
 
 #### JOINs
 
-Joins should be left defined and in alignment with the `FROM` keyword
+Joins should be directly underneath the FROM keyword with no indentation.
 
-Single line `JOIN`s are fine for simple situations
+Single line `JOIN`s are fine for simple situations.
 
 ```sql
 SELECT r.last_name
