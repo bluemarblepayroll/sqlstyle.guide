@@ -7,7 +7,7 @@ nbproject
 ._*
 Thumbs.db
 Gemfile.lock
-CNAME
+_site/CNAME
 
 _site
 _gh_pages

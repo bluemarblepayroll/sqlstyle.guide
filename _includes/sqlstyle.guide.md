@@ -128,7 +128,7 @@ CREATE PROCEDURE `test`(
 BEGIN
 
 DECLARE _CNST_HIDDEN_COMPONENT VARCHAR(255) DEFAULT 'Hidden Component'; -- allowed
-SET _CNST_HIDDEN_COMPONENT = 'Hidden Component'; -- not allowed
+SET _CNST_HIDDEN_COMPONENT = 'CHANGED Component'; -- not allowed
 
 DECLARE _code_name VARCHAR(255); 
 
@@ -246,8 +246,7 @@ Always include newlines/vertical space:
 * before `AND` or `OR`
 * after semicolons to separate queries for easier reading
 * after each keyword definition
-* to separate code into related sections, which helps to ease the readability
-  of large chunks of code.
+* to separate code into related sections, which helps to improve the readability of large chunks of code.
 
 Additionally, for the following pairs of dependent key words - `ON` depends
 on `JOIN`/`LEFT JOIN`/`RIGHT JOIN`, `AND`/`OR` depends on `WHERE`, `SET`
@@ -291,7 +290,7 @@ WHERE a.title = 'Charcoal Lane'
 
 #### JOINs
 
-Joins should be directly underneath the FROM keyword with no indentation.
+Joins should be left defined with no additional indentation.
 
 Single line `JOIN`s are fine for simple situations.
 
@@ -477,8 +476,7 @@ WHERE country = 'United Kingdom'
 
 * Use `TRUE` and `FALSE` instead of `0` and `1` as that it is immediately
   obvious that these values are booleans and not magic numbers. This is also
-  more semantic. It appears as though SQL99 introduces this "IS FALSE" or "IS
-  TRUE" syntax. Note that TRUE and FALSE are reserved words.
+  more semantic. Note that TRUE and FALSE are reserved words.
 
 ```sql
 SELECT count(*)
