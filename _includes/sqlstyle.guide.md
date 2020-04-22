@@ -174,7 +174,6 @@ WHERE p.release_date > '2014-09-30';
 To make the code easier to read it is important that the correct amount of
 spacing is used. Do not crowd code or remove natural language spaces.
 
-
 ### Indentation
 
 To ensure that SQL is readable it is important that standards of indentation
@@ -206,8 +205,7 @@ WHERE first_name = 'Mike'
 
 This allows the reader to quickly scan for the important building blocks of the query.
 
-
-#### Commas
+### Commas
 
 To make the code more readable, place commas at the end of the selected value.
 
