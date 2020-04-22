@@ -101,6 +101,25 @@ SELECT SUM(s.monitor_tally) AS monitor_total
 FROM staff AS s;
 ```
 
+#### Aliasing Tables
+
+Alias should be the abbreviation of the table name
+
+* lkp_food = lf
+* lkp_drinks = ld
+* menu_items = mi
+
+If there are two tables with the same alias, then the last part part of the table
+should be used as an added descriptor.
+
+* menu_items_brunch = mi_brunch
+* menu_items_beverages = mi_beverages
+
+Additionally, temp tables should always be prefixed with temp.
+
+* temp_food_items = temp_fi
+* temp_beverage_items = temp_bi
+
 ### Stored procedures
 
 * The name must contain a verb.
@@ -185,6 +204,32 @@ WHERE first_name = 'Mike'
 ```
 
 This allows the reader to quickly scan for the important building blocks of the query.
+
+### Commas
+
+To make the code more readable, place commas at the end of the selected value.
+
+Good:
+
+```sql
+SELECT
+  a,
+  b,
+  c,
+  d
+FROM alphabet;
+```
+
+Bad:
+
+```sql
+SELECT
+  a
+  ,b
+  ,c
+  ,d
+FROM alphabet;
+```
 
 #### Spaces
 
