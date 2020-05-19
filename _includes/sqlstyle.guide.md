@@ -93,8 +93,7 @@ FROM staff;
 ```sql
 SELECT first_name AS fn
 FROM staff AS s1
-  JOIN students AS s2
-    ON s2.mentor_id = s1.staff_num;
+JOIN students AS s2 ON s2.mentor_id = s1.staff_num;
 ```
 ```sql
 SELECT SUM(s.monitor_tally) AS monitor_total
@@ -125,6 +124,39 @@ Additionally, temp tables should always be prefixed with temp.
 * The name must contain a verb.
 * Do not prefix with `sp_` or any other such descriptive prefix or Hungarian
   notation.
+* Prefix arguments/variables with an underscore. This is done to visually
+  differentiate variables from other identifiers such as column and table
+  names.
+* Align argument types with longest argument name + 1 space in order to 
+  create a separate visual column for the type declarations.
+* All IN parameters should be listed before OUT parameters.
+* Arguments/variables meant to be immutable should be in screaming snake case.
+* Arguments/variables meant to be mutable should be in lowercase snake case.
+* Default to immutable naming conventions.
+
+```sql
+CREATE PROCEDURE `test`(
+  IN
+  _LKP_ID            INT,  -- not supposed to change this, even though you can!
+  _lkp_id_id2        INT,  -- you can change this  but changing input values is discouraged
+  OUT _something_id  INT,
+  OUT _something_id2 INT,
+  OUT _something_id3 INT
+)
+
+BEGIN
+
+DECLARE _CNST_HIDDEN_COMPONENT VARCHAR(255) DEFAULT 'Hidden Component'; -- allowed
+SET _CNST_HIDDEN_COMPONENT = 'CHANGED Component'; -- not allowed
+
+DECLARE _code_name VARCHAR(255); 
+
+SELECT `name`
+INTO _code_name -- allowed
+FROM codes
+WHERE id = _LKP_ID;
+```
+
 
 ### Uniform prefixes
 
@@ -259,12 +291,20 @@ Always include newlines/vertical space:
 * before `AND` or `OR`
 * after semicolons to separate queries for easier reading
 * after each keyword definition
-* to separate code into related sections, which helps to ease the readability of
-  large chunks of code.
+* to separate code into related sections, which helps to improve the readability of large chunks of code.
 
-Keeping all the dependent keywords (e.g. `ON` depends on `JOIN`, `AND` depends on `WHERE`,
-`SET` depends on `UPDATE` right aligned with the top level keywords helps make it clear
-all the lines are part of the same clause.
+Additionally, for the following pairs of dependent key words - `ON` depends
+on `JOIN`/`LEFT JOIN`/`RIGHT JOIN`, `AND`/`OR` depends on `WHERE`, `SET`
+depends on `UPDATE`, `VALUES` depends on `INSERT INTO`:
+* `JOIN`/`LEFT JOIN`/`RIGHT JOIN` are left defined relative to `FROM` with
+  `ON` being on the same line when there is a single join condition or `ON`
+  being on the next line indented 2 spaces, with the additional `AND`/`OR`
+  conditions each on a new line indented 2 spaces, left aligned with `ON`.
+* `WHERE` is left defined relative to `SELECT` with subsequent `AND`/`OR`
+  each on their own line indented 2 spaces.
+* `UPDATE` is left defined with `SET` on a newline indented 2 spaces.
+* `INSERT INTO` is left defined with `VALUES` being left defined too.
+
 
 ```sql
 INSERT INTO albums (title, release_date, recording_date)
@@ -274,44 +314,55 @@ VALUES ('Charcoal Lane', '1990-01-01 01:01:01.00000', '1990-01-01 01:01:01.00000
 
 ```sql
 UPDATE albums
-   SET release_date = '1990-01-01 01:01:01.00000'
+  SET release_date = '1990-01-01 01:01:01.00000'
 WHERE title = 'The New Danger';
 ```
 
 ```sql
 SELECT
-  a.title,
-  a.release_date,
-  a.recording_date,
-  a.production_date
-FROM albums AS a
+  artists.name,
+  albums.title,
+  albums.release_date,
+  albums.recording_date,
+  albums.production_date
+FROM albums AS albums
+LEFT JOIN artists AS artists
+  ON albums.artist_id = artists.id
+  AND artists.group_count > 2
 WHERE a.title = 'Charcoal Lane'
-   OR a.title = 'The New Danger';
+  OR a.title = 'The New Danger';
 ```
 
 #### JOINs
 
-Joins should be indented 2 spaces right from the `FROM` keyword
+Joins should be left defined with no additional indentation.
 
-Single line `JOIN`s are fine for simple situations
+Single line `JOIN`s are fine for simple situations.
 
 ```sql
 SELECT r.last_name
 FROM riders AS r
-  INNER JOIN bikes AS b ON r.bike_vin_num = b.vin_num
-  INNER JOIN crew AS c ON r.crew_chief_last_name = c.last_name
+INNER JOIN bikes AS b ON r.bike_vin_num = b.vin_num
+INNER JOIN crew AS c ON r.crew_chief_last_name = c.last_name;
 ```
 
 Multi line JOINs should be indented as per the dependent keywords rule:
 
 ```sql
-SELECT r.last_name
+SELECT 
+  r.last_name,
+  r.first_name,
+  b.model_num,
+  b.make_year,
+  CONCAT(c.first_name, ' ', c.last_name) AS  `Crew Chief`
 FROM riders AS r
-  INNER JOIN bikes AS b
-          ON r.bike_vin_num = b.vin_num
-         AND r.bike_lane = r.lane
-  INNER JOIN crew c ON r.crew_chief_last_name = c.last_name
-WHERE id = 5
+INNER JOIN bikes AS b
+  ON r.bike_vin_num = b.vin_num
+  AND r.bike_lane = r.lane
+INNER JOIN crew c ON r.crew_chief_last_name = c.last_name
+WHERE b.make_year > 2010
+  AND b.vin_num LIKE "%NRG%"
+ORDER BY b.make_year DESC;
 ```
 
 #### Boolean Expressions
@@ -352,7 +403,7 @@ Indent them until the closing parentheses.
 WITH my_tmp_table AS (
   SELECT r.last_name
   FROM riders AS r
-    INNER JOIN bikes AS b ON r.bike_vin_num = b.vin_num
+  INNER JOIN bikes AS b ON r.bike_vin_num = b.vin_num
   WHERE id = 10
 ),
 
@@ -363,7 +414,7 @@ my_other_tmp_table AS (
 
 SELECT *
 FROM my_tmp_table
-  JOIN my_other_tmp_table ON my_other_tmp_table.last_name = my_tmp_table.last_name
+JOIN my_other_tmp_table ON my_other_tmp_table.last_name = my_tmp_table.last_name
 ```
 
 #### Sub-queries
@@ -391,21 +442,21 @@ WHERE r.last_name IN
     FROM champions AS c
     WHERE YEAR(championship_date) > '2008'
       AND c.confirmed = 'Y'
-  )
+  );
 ```
 
 #### Case statements (PostreSQL)
 
-`CASE` and `END` can either be inline if they are less than 80 characters:
+`CASE` and `END` can either be inline if they are up to 100 characters:
 
 ```sql
 SELECT CASE WHEN x > y THEN 1 ELSE 0 END
 FROM table
 ```
 
-Or WHEN/END should have 2 space left justification, and `WHEN`/`THEN` should be indented the same as the `ELSE`/`value`.
+Or WHEN should have 2 space left justification, and `WHEN`/`THEN` should be indented the same as the `ELSE`/`value`.
 Multiple `AND` or `OR` clauses can be inlined if < 80 characters, or should be right aligned with the whitespace river
-after `WHEN` if they are longer
+after `WHEN` if they are longer. `END` should be inline with the initial `CASE` keyword.
 
 ```sql
 SELECT
@@ -415,17 +466,17 @@ SELECT
     WHEN x > y AND x > z
       THEN 'x more than y and more than z'
     WHEN some_very_long_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
-     AND some_event_very_much_longer_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
+      AND some_event_very_much_longer_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
       THEN 'something happened later'
     WHEN some_very_long_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
       OR some_event_very_much_longer_thing_happened BETWEEN '2016-01-01' AND '2016-01-01'
       THEN 'something else'
     ELSE
       'x and y not related'
-    END AS city,
+  END AS city,
   street_address,
   phone_number
-FROM office_locations
+FROM office_locations;
 ```
 
 #### Case statements (MySql)
@@ -437,7 +488,7 @@ SELECT
       THEN 'Brighton'
     WHEN 'EH1'
       THEN 'Edinburgh'
-    END AS city,
+  END AS city,
   street_address,
   phone_number
 FROM office_locations
@@ -461,11 +512,21 @@ SELECT
       THEN 'Brighton'
     WHEN 'EH1'
       THEN 'Edinburgh'
-    END AS city
+  END AS city
 FROM office_locations
 WHERE country = 'United Kingdom'
   AND opening_time BETWEEN 8 AND 9
-  AND postcode IN ('EH1', 'BN1', 'NN1', 'KW1')
+  AND postcode IN ('EH1', 'BN1', 'NN1', 'KW1');
+```
+
+* Use `TRUE` and `FALSE` instead of `0` and `1` as that it is immediately
+  obvious that these values are booleans and not magic numbers. This is also
+  more semantic. Note that TRUE and FALSE are reserved words.
+
+```sql
+SELECT count(*)
+FROM office_locations
+WHERE is_shared IS FALSE;
 ```
 
 ## Create syntax
